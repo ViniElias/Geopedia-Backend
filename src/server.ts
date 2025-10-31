@@ -3,6 +3,8 @@ import cors from 'cors';
 import 'dotenv/config';
 import { test_db_connection } from './db.js';
 
+import continenteRoutes from './routes/continenteRoutes.js';
+
 // Configuração do App
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,3 +23,5 @@ app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
   test_db_connection();
 });
+
+app.use('/continentes', continenteRoutes);
