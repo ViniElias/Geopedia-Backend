@@ -26,6 +26,7 @@ export const getAllContinentes = async (req: Request, res: Response) => {
         const result = await pool.query(query);
 
         res.status(200).json(result.rows);
+        
     } catch (error) {
         console.error('Erro ao buscar continentes: ', error);
         res.status(500).json({error: 'Erro interno do servidor.'});
