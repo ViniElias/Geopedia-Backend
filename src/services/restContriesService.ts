@@ -2,6 +2,7 @@ export interface CountryApiData {
     populacao: number;
     idioma: string;
     moeda: string;
+    nome_en: string;
 }
 
 //  Interface simplificada esperada da API
@@ -17,7 +18,7 @@ interface ApiCountry {
 
 export const fetchCountryData = async (nome: string): Promise<CountryApiData> => {
     try {
-        const url = `https://restcountries.com/v3.1/name/${nome}?fullText=true`;
+        const url = `https://restcountries.com/v3.1/translation/${nome}?fullText=true`;
 
         const response = await fetch(url);
 
@@ -32,7 +33,7 @@ export const fetchCountryData = async (nome: string): Promise<CountryApiData> =>
         }
 
         const pais = data[0];
-
+        const nome_en = pais.name.common;
         const populacao = pais.population;
 
         const idioma =
@@ -45,7 +46,7 @@ export const fetchCountryData = async (nome: string): Promise<CountryApiData> =>
                 ? Object.values(pais.currencies)[0].name
                 : 'N/D'; // 'N/D' como fallback
 
-        return { populacao, idioma, moeda };
+        return { populacao, idioma, moeda, nome_en };
 
     } catch (error) {
         console.error('Erro ao buscar dados da API: ', error);

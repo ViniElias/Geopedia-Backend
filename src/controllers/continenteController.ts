@@ -7,10 +7,10 @@ const getContinenteId = async (id: string | number) => {
         const values = [id];
         const result = await pool.query(query, values);
 
-        if(result.rows.length == 0) {
+        if (result.rows.length == 0) {
             return null;
         }
-        
+
         return result.rows[0];
 
     } catch (error) {
@@ -26,10 +26,10 @@ export const getAllContinentes = async (req: Request, res: Response) => {
         const result = await pool.query(query);
 
         res.status(200).json(result.rows);
-        
+
     } catch (error) {
         console.error('Erro ao buscar continentes: ', error);
-        res.status(500).json({error: 'Erro interno do servidor.'});
+        res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 }
 
@@ -44,12 +44,12 @@ export const addContinente = async (req: Request, res: Response) => {
 
         const values = [nome, descricao];
         const result = await pool.query(query, values);
-        
+
         res.status(201).json(result.rows[0]);
 
     } catch (error) {
         console.error('Erro ao adicionar continente: ', error);
-        res.status(500).json({error: 'Erro interno do servidor.'});
+        res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 }
 
@@ -59,27 +59,27 @@ export const deleteContinente = async (req: Request, res: Response) => {
     try {
         const continente = await getContinenteId(id);
 
-        if(!continente) {
+        if (!continente) {
             return res.status(404).json({ error: 'Continente não encontrado.' });
         }
 
-        await pool.query('DELETE FROM continentes WHERE id = $1', [id])
+        await pool.query('DELETE FROM continentes WHERE id = $1', [id]);
 
         res.status(204).send();
     } catch (error) {
         console.error('Erro ao excluir continente: ', error);
-        res.status(500).json({error: 'Erro interno do servidor.'});
+        res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 }
 
 export const updateContinente = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { nome, descricao } = req.body;
-    
+
     try {
         const continente = await getContinenteId(id);
 
-        if(!continente) {
+        if (!continente) {
             return res.status(404).json({ error: 'Continente não encontrado.' });
         }
 
@@ -88,6 +88,6 @@ export const updateContinente = async (req: Request, res: Response) => {
         res.status(200).json(result.rows[0]);
     } catch (error) {
         console.error('Erro ao atualizar continente: ', error);
-        res.status(500).json({error: 'Erro interno do servidor.'});
+        res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 }

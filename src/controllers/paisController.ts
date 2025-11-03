@@ -51,7 +51,7 @@ export const addPais = async (req: Request, res: Response) => {
         RETURNING *`;
 
         const values = [
-            nome,
+            apiData.nome_en,
             apiData.populacao,
             apiData.idioma,
             apiData.moeda,
@@ -80,6 +80,52 @@ export const addPais = async (req: Request, res: Response) => {
             return res.status(409).json({ error: 'Um país com este nome já existe.' });
         }
 
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+}
+
+export const deletePais = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const pais = await getPaisId(id);
+
+        if (!pais) {
+            return res.status(404).json({ error: 'País não encontrado.' });
+        }
+
+        await pool.query('DELETE FROM paises WHERE id = $1', [id]);
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Erro ao excluir país: ', error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+}
+
+export const updatePais = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { nome, populacao, idioma, moeda } = req.body;
+
+    try {
+        const pais = await getPaisId(id);
+
+        if (!pais) {
+            return res.status(404).json({ error: 'País não encontrado.' });
+        }
+
+        const result = await pool.query(`UPDATE paises SET 
+            nome = $1, 
+            populacao = $2,
+            idioma = $3,
+            moeda = $4
+            WHERE id = $5
+            RETURNING *`,
+            [nome, populacao, idioma, moeda, id]);
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Erro ao atualizar país: ', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 }
