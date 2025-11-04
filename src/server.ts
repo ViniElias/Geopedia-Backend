@@ -5,6 +5,7 @@ import { test_db_connection } from './db.js';
 
 import continenteRoutes from './routes/continenteRoutes.js';
 import paisRoutes from './routes/paisRoutes.js';
+import cidadeRoutes from './routes/cidadeRoutes.js';
 
 // Configuração do App
 const app = express();
@@ -27,3 +28,4 @@ app.listen(port, () => {
 
 app.use('/continentes', continenteRoutes);
 app.use('/paises', paisRoutes);
+app.use('/cidades', cidadeRoutes);

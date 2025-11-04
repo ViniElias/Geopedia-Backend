@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { pool } from "../db.js";
+import { fetchCoordinates } from "../services/openWeatherService.js";
 
 const getCidadeId = async (id: string | number) => {
     try {
@@ -32,3 +33,54 @@ export const getAllCidades = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 }
+
+export const addCidade = async (req: Request, res: Response) => {
+  const { nome, populacao, id_pais } = req.body;
+
+  if (!nome || !populacao || !id_pais) {
+    return res.status(400).json({ 
+      error: 'Campos "nome", "populacao" e "id_pais" são obrigatórios.' 
+    });
+  }
+
+  try {
+    const { lat, lon } = await fetchCoordinates(nome);
+
+    const query = `
+      INSERT INTO cidades (nome, populacao, latitude, longitude, id_pais)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *`;
+
+    const values = [
+      nome,
+      populacao,
+      lat,
+      lon,
+      id_pais
+    ];
+
+    const result = await pool.query(query, values);
+
+    res.status(201).json(result.rows[0]);
+
+  } catch (error: any) {
+    console.error('Erro ao adicionar cidade:', error);
+
+    // Se o erro veio da API (cidade não encontrada)
+    if (error.message.includes("não encontrada")) {
+      return res.status(404).json({ error: error.message });
+    }
+
+    // Se id_pais não existe
+    if (error.code === '23503') { 
+      return res.status(409).json({ error: 'O país com este ID não existe.' });
+    }
+
+    // Se a cidade já existe (nome + id_pais duplicados)
+    if (error.code === '23505') { 
+      return res.status(409).json({ error: 'Esta cidade já está cadastrada neste país.' });
+    }
+
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+};

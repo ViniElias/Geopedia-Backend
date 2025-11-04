@@ -23,7 +23,7 @@ export const fetchCountryData = async (nome: string): Promise<CountryApiData> =>
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error(`País "${nome} não encontrado.`);
+            throw new Error(`País "${nome}" não encontrado.`);
         }
 
         const data = (await response.json()) as ApiCountry[];
