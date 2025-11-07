@@ -18,7 +18,7 @@ const getPaisId = async (id: string | number) => {
         console.error('Erro ao buscar país por ID: ', error);
         throw error;
     }
-}
+};
 
 export const getAllPaises = async (req: Request, res: Response) => {
     try {
@@ -31,7 +31,7 @@ export const getAllPaises = async (req: Request, res: Response) => {
         console.error('Erro ao buscar países: ', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
-}
+};
 
 export const addPais = async (req: Request, res: Response) => {
     const { nome, id_continente } = req.body;
@@ -82,7 +82,7 @@ export const addPais = async (req: Request, res: Response) => {
 
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
-}
+};
 
 export const deletePais = async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -101,7 +101,7 @@ export const deletePais = async (req: Request, res: Response) => {
         console.error('Erro ao excluir país: ', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
-}
+};
 
 export const updatePais = async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -128,4 +128,4 @@ export const updatePais = async (req: Request, res: Response) => {
         console.error('Erro ao atualizar país: ', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
-}
+};
