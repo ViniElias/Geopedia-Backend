@@ -15,7 +15,7 @@ interface GeocodingResponse {
 
 export const fetchCoordinates = async (nome: string): Promise<GeoCoordinates> => {
     const apiKey = process.env.OPENWEATHER_API_KEY;
-    if(!apiKey) {
+    if (!apiKey) {
         throw new Error('Chave da API inválida.');
     }
 
@@ -24,13 +24,13 @@ export const fetchCoordinates = async (nome: string): Promise<GeoCoordinates> =>
     try {
         const response = await fetch(url);
 
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error(`Cidade "${nome}" não encontrada.`);
         }
 
         const data = (await response.json()) as GeocodingResponse[];
 
-        if(!data || data.length === 0) {
+        if (!data || data.length === 0) {
             throw new Error(`Nenhum dado retornado pela API para "${nome}".`);
         }
 
@@ -42,5 +42,35 @@ export const fetchCoordinates = async (nome: string): Promise<GeoCoordinates> =>
     } catch (error) {
         console.error('Erro no serviço OpenWeather: ', error);
         throw error;
+    };
+};
+
+export const fetchCurrentWeather = async (lat: number, lon: number) => {
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+    if (!apiKey) {
+        throw new Error("Chave da API inválida.");
     }
-}
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt&appid=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Não foi possível buscar os dados de clima.");
+        }
+
+        const data = await response.json();
+
+        return {
+            icone: data.weather[0].icon,
+            clima: data.weather[0].description,
+            temperatura: data.main.temp,
+            umidade: data.main.humidity,
+            vento: data.wind.speed,
+            horario: new Date(data.dt * 1000) // Converte o timestamp
+        };
+    } catch (error) {
+        console.error("Erro no serviço OpenWeather (clima): ", error);
+        throw error;
+    }
+};

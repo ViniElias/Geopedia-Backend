@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { pool } from "../db.js";
-import { fetchCoordinates } from "../services/openWeatherService.js";
+import { fetchCoordinates, fetchCurrentWeather } from "../services/openWeatherService.js";
 
 const getCidadeId = async (id: string | number) => {
   try {
@@ -107,7 +107,7 @@ export const deleteCidade = async (req: Request, res: Response) => {
 
 export const updateCidade = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { nome, populacao, lat, lon } = req.body;
+  const { nome, populacao, latitude, longitude } = req.body;
 
   try {
     const cidade = await getCidadeId(id);
@@ -123,12 +123,32 @@ export const updateCidade = async (req: Request, res: Response) => {
       longitude = $4
       WHERE id = $5
       RETURNING *`,
-      [nome, populacao, lat, lon, id]);
+      [nome, populacao, latitude, longitude, id]);
 
     res.status(200).json(result.rows[0]);
 
   } catch (error) {
     console.error('Erro ao atualizar cidade: ', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+};
+
+export const getWeather = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const cidade = await getCidadeId(id);
+    if (!cidade) {
+      return res.status(404).json({ error: 'Cidade não encontrada.' });
+    }
+
+    const { latitude, longitude } = cidade;
+    const weatherData = await fetchCurrentWeather(latitude, longitude);
+
+    res.status(200).json(weatherData);
+
+  } catch (error) {
+    console.error('Erro ao buscar clima da cidade: ', error);
+    res.status(500).json({ error: 'Erro interno do servidor.' })
   }
 };
