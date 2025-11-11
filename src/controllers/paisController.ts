@@ -51,7 +51,7 @@ export const addPais = async (req: Request, res: Response) => {
         RETURNING *`;
 
         const values = [
-            apiData.nome_en,
+            apiData.nome_pt,
             apiData.populacao,
             apiData.idioma,
             apiData.moeda,
