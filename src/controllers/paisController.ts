@@ -22,11 +22,23 @@ const getPaisId = async (id: string | number) => {
 
 export const getAllPaises = async (req: Request, res: Response) => {
     try {
-        const query = "SELECT * FROM paises";
-        const result = await pool.query(query);
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const offset = (page - 1) * limit;
 
-        res.status(200).json(result.rows);
+        const countResult = await pool.query('SELECT COUNT(*) FROM paises');
+        const total = parseInt(countResult.rows[0].count);
 
+        const query = 'SELECT * FROM paises ORDER BY nome ASC LIMIT $1 OFFSET $2';
+        const result = await pool.query(query, [limit, offset]);
+
+        res.status(200).json({
+            data: result.rows,
+            total: total,
+            page: page,
+            totalPages: Math.ceil(total / limit)
+        });
+        
     } catch (error) {
         console.error('Erro ao buscar países: ', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });

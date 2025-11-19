@@ -22,11 +22,22 @@ const getCidadeId = async (id: string | number) => {
 
 export const getAllCidades = async (req: Request, res: Response) => {
   try {
-    const query = "SELECT * FROM cidades";
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
 
-    const result = await pool.query(query);
+    const countResult = await pool.query('SELECT COUNT(*) FROM cidades');
+    const total = parseInt(countResult.rows[0].count);
 
-    res.status(200).json(result.rows);
+    const query = 'SELECT * FROM cidades ORDER BY nome ASC LIMIT $1 OFFSET $2';
+    const result = await pool.query(query, [limit, offset]);
+
+    res.status(200).json({
+      data: result.rows,
+      total: total,
+      page: page,
+      totalPages: Math.ceil(total / limit)
+    });
 
   } catch (error) {
     console.error('Erro ao buscar cidades: ', error);
